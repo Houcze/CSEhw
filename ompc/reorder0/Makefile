@@ -1,12 +1,12 @@
-CC     = mpicc
-OPTFLAGS= -o3 -mprefer-vector-width=256
-TARGET    = ../run/L3-sol
+CC     = fccpx
+OPTFLAGS= -o3 -Kfast,openmp -Nclang -msve-vector-bits=512 -ffj-ocl
+TARGET    = ../run/L3-rsol0
 
 .SUFFIXES:
 .SUFFIXES: .o .c 
 
 .c.o:
-	$(CC) -c $(CFLAGS) $(OPTFLAGS) $< -o $@ -lm -lgomp
+	$(CC) -c $(CFLAGS) $(OPTFLAGS) $< -o $@
 
 OBJS = \
 	input.o \
@@ -19,6 +19,7 @@ OBJS = \
 	cmrcm.o \
 	poi_gen.o \
 	solver_ICCG_mc.o \
+	solver_ICCG_mc_ft.o \
 	outucd.o \
 	allocate.o \
 	main.o
@@ -38,15 +39,16 @@ HEADERS = \
 	cmrcm.h \
 	poi_gen.h \
 	solver_ICCG_mc.h \
+	solver_ICCG_mc_ft.h \
 	allocate.h \
 	outucd.h
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS) 
-	$(CC) $(CFLAGS) $(OPTFLAGS) -o $@ $(OBJS) $(LDFLAGS) -lm -lgomp
+	$(CC) $(CFLAGS) $(OPTFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
 $(OBJS): $(HEADERS)
 
 clean:
-	rm -f *.o $(TARGET) *.log *~ *.lst
+	rm -f *.o $(TARGET) *.log *~
