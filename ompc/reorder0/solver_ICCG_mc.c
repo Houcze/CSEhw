@@ -14,7 +14,7 @@ extern int
 solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *itemU,
 		double *D, double *B, double *X, double *AL, double *AU,
 		int NCOLORtot, int PEsmpTOT, int *SMPindex, 
-		double EPS, int *ITR, int *IER)
+		double EPS, int *ITR, int *IER, int *itemLU, double *ALU, double *XX)
 {
 	double **W;
 	double VAL, BNRM2, WVAL, SW, RHO, BETA, RHO1, C1, DNRM2, ALPHA, ERR;
@@ -172,6 +172,7 @@ for(i=0; i<N; i++)
 	delta[2*i+1] = indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i];
 }
 */
+/*
 for(i=0; i<N; i++)
 {
 	for(j=0; j<indexL[i+1]-indexL[i]; j++)
@@ -188,7 +189,7 @@ for(i=0; i<N; i++)
 		XX[itemLU[6 * i + j]] = X[itemU[indexU[i]+j-indexL[i+1]+indexL[i]] - 1];		
 	}
 }
-
+*/
 #pragma omp parallel for private (i, VAL, j)
 /*
 	for(ip=0; ip<PEsmpTOT; ip++) {

@@ -49,12 +49,13 @@ POI_GEN(void)
         indexU = (int *)allocate_vector(sizeof(int),ICELTOT+1);
         indexLnew_org = (int *)allocate_vector(sizeof(int),ICELTOT+1);
         indexUnew_org = (int *)allocate_vector(sizeof(int),ICELTOT+1);
+
 		itemLU = (int *)allocate_vector(sizeof(int),ICELTOT*6);
 		XX = (double *)allocate_vector(sizeof(double),ICELTOT*6);
 		ALU = (double *)allocate_vector(sizeof(double),ICELTOT*6);
 		memset(itemLU, 0, sizeof(int) * ICELTOT*6);
-		memset(XX, 0, sizeof(int) * ICELTOT*6);
-		memset(ALU, 0, sizeof(int) * ICELTOT*6);
+		memset(XX, 0, sizeof(double) * ICELTOT*6);
+		memset(ALU, 0, sizeof(double) * ICELTOT*6);
 
 	for(j=0; j<ICELTOT; j++) {
 		INL[j] = 0;
@@ -607,22 +608,6 @@ N111:
 	}
 
 
-for(i=0; i<N; i++)
-{
-	for(j=0; j<indexL[i+1]-indexL[i]; j++)
-	{
-		ALU[6 * i + j] = ALnew[indexL[i]+j];
-		itemLU[6 * i + j] = itemL[indexL[i]+j] - 1;
-		XX[itemLU[6 * i + j]] = PHI[itemL[indexL[i]+j]-1];
-		
-	}
-	for(j=indexL[i+1]-indexL[i];j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i];j++)
-	{
-		ALU[6 * i + j] = AUnew[indexU[i]+j-indexL[i+1]+indexL[i]];
-		itemLU[6 * i + j] = itemU[indexU[i]+j-indexL[i+1]+indexL[i]] - 1;
-		XX[itemLU[6 * i + j]] = PHI[itemU[indexU[i]+j-indexL[i+1]+indexL[i]] - 1];		
-	}
-}
 
 	return 0;
 }

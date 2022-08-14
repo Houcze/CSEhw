@@ -43,12 +43,29 @@ int main()
 		goto error;
 	}
 
+	for(int i=0; i<ICELTOT; i++)
+	{
+		for(int j=0; j<indexLnew[i+1]-indexLnew[i]; j++)
+		{
+			ALU[6 * i + j] = ALnew[indexLnew[i]+j];
+			itemLU[6 * i + j] = itemLnew[indexLnew[i]+j] - 1;
+			XX[itemLU[6 * i + j]] = PHI[itemLnew[indexLnew[i]+j]-1];
+
+		}
+		for(int j=indexLnew[i+1]-indexLnew[i];j<indexLnew[i+1]-indexLnew[i]+indexUnew[i+1]-indexUnew[i];j++)
+		{
+			ALU[6 * i + j] = AUnew[indexUnew[i]+j-indexLnew[i+1]+indexLnew[i]];
+			itemLU[6 * i + j] = itemUnew[indexUnew[i]+j-indexLnew[i+1]+indexLnew[i]] - 1;
+			XX[itemLU[6 * i + j]] = PHI[itemUnew[indexUnew[i]+j-indexLnew[i+1]+indexLnew[i]] - 1];		
+		}
+	}
+
 	Stime = omp_get_wtime();
 	if(METHOD == 0 ){
-		if(solve_ICCG_mc(ICELTOT, NL, NU, indexLnew, itemLnew, 
+		if(solve_ICCG_mc(ICELTOT	, NL, NU, indexLnew, itemLnew, 
       			indexUnew, itemUnew, D, BFORCE, PHI, ALnew, AUnew, 
 			NCOLORtot, PEsmpTOT, SMPindex_new, EPSICCG, 
-			&ITR, &IER)) goto error;
+			&ITR, &IER, itemLU, ALU, XX)) goto error;
 	}else if (METHOD == 1){
 		if(solve_ICCG_mc_ft(ICELTOT, NL, NU, indexLnew, itemLnew, 
       			indexUnew, itemUnew, D, BFORCE, PHI, ALnew, AUnew, 
