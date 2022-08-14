@@ -14,7 +14,7 @@ extern int
 solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *itemU,
 		double *D, double *B, double *X, double *AL, double *AU,
 		int NCOLORtot, int PEsmpTOT, int *SMPindex, 
-		double EPS, int *ITR, int *IER, int *itemLU, double *ALU, double *XX)
+		double EPS, int *ITR, int *IER)
 {
 	double **W;
 	double VAL, BNRM2, WVAL, SW, RHO, BETA, RHO1, C1, DNRM2, ALPHA, ERR;
