@@ -1,12 +1,12 @@
 CC     = mpicc
-OPTFLAGS= -o3 -mprefer-vector-width=512
-TARGET    = L3-rsol0.exe
+OPTFLAGS= -o3 -mprefer-vector-width=256
+TARGET    = ../run/L3-sol
 
 .SUFFIXES:
 .SUFFIXES: .o .c 
 
 .c.o:
-	$(CC) -g -c $(CFLAGS) $(OPTFLAGS) $< -o $@ -lm -lgomp
+	$(CC) -c $(CFLAGS) $(OPTFLAGS) $< -o $@ -lm -lgomp
 
 OBJS = \
 	input.o \
@@ -19,7 +19,6 @@ OBJS = \
 	cmrcm.o \
 	poi_gen.o \
 	solver_ICCG_mc.o \
-	solver_ICCG_mc_ft.o \
 	outucd.o \
 	allocate.o \
 	main.o
@@ -39,7 +38,6 @@ HEADERS = \
 	cmrcm.h \
 	poi_gen.h \
 	solver_ICCG_mc.h \
-	solver_ICCG_mc_ft.h \
 	allocate.h \
 	outucd.h
 
@@ -51,4 +49,4 @@ $(TARGET): $(OBJS)
 $(OBJS): $(HEADERS)
 
 clean:
-	rm -f *.o $(TARGET) *.log *~
+	rm -f *.o $(TARGET) *.log *~ *.lst
