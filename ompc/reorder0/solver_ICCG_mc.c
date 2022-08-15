@@ -210,7 +210,8 @@ for(i=0; i<N; i++)
 		}
 	}
 	*/
-	for(i=0; i<N; i++) {
+for(ip=0; ip<PEsmpTOT; ip++) {
+	for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
 		VAL = D[i] * X[i];
 		
 		for(j=0; j<6; j++) {
@@ -227,6 +228,7 @@ for(i=0; i<N; i++)
 		W[R][i] = B[i] - VAL;
 		
 	}
+}
 	BNRM2 = 0.0;
 
 
