@@ -40,7 +40,6 @@ solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *
 		}
 	}
 
-
 	for(ic=0; ic<NCOLORtot; ic++) {
 #pragma omp parallel for private (ip1, i, VAL, j)
 		for(ip=0; ip<PEsmpTOT; ip++) {
@@ -55,7 +54,22 @@ solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *
 			}
 		}
 	}
+/*
+	for(ic=0; ic<NCOLORtot; ic++) {
+#pragma omp parallel for private (ip1, i, VAL, j)
+		for(ip=0; ip<PEsmpTOT; ip++) {
+			ip1 = ip * NCOLORtot + ic;
+			for(i=SMPindex[ip1]; i<SMPindex[ip1+1]; i++) {
+				VAL = D[i];
+				for(j=0; j<indexL[i+1]-indexL[i]; j++) {
+					VAL = VAL - ALU[6*i+j]*ALU[6*i+j] * W[DD][itemLU[6*i+j]];
+				}
 
+				W[DD][i] = 1.0 / VAL;
+			}
+		}
+	}
+*/
 /**************************
  * {r0} = {b} - {A}{xini} *
  **************************/
@@ -190,7 +204,8 @@ for(i=0; i<N; i++)
 	}
 }
 */
-
+double s1, s2;
+s1 = omp_get_wtime();
 #pragma omp parallel for private (i, VAL, j)
 /*
 	for(ip=0; ip<PEsmpTOT; ip++) {
@@ -230,7 +245,8 @@ for(ip=0; ip<PEsmpTOT; ip++) {
 	}
 }
 	BNRM2 = 0.0;
-
+s2 = omp_get_wtime();
+fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
 
 #pragma omp parallel for private (i) reduction (+:BNRM2)
 	for(ip=0; ip<PEsmpTOT; ip++) {
@@ -330,7 +346,7 @@ for(ip=0; ip<PEsmpTOT; ip++) {
 /*
 double s1, s2;
 s1 = omp_get_wtime();
-*/
+
 #pragma omp parallel for private (ip, i, VAL, j)
 for(ip=0; ip<PEsmpTOT; ip++) {
 	for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++)
@@ -346,12 +362,12 @@ for(ip=0; ip<PEsmpTOT; ip++) {
 		W[Q][i] = VAL;
 	}
 }
-/*
+
 s2 = omp_get_wtime();
 fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
 */
-/*
-#pragma omp parallel for private (ip1, i, VAL, j)
+
+#pragma omp parallel for private (ip, i, VAL, j)
 	for(ip=0; ip<PEsmpTOT; ip++) {
 		for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
 			VAL = D[i] * W[P][i];
@@ -364,7 +380,7 @@ fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
 			W[Q][i] = VAL;
 		}
 	}
-*/
+
 /*
 #pragma omp parallel for private (ip1, i, VAL, j)
 	for(ip=0; ip<PEsmpTOT; ip++) {
@@ -382,6 +398,7 @@ fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
 	}
 	
 */
+
 /************************
  * ALPHA = RHO / {p}{q} *
  ************************/
@@ -436,6 +453,7 @@ fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
 		}
 	}
 	*IER = 1;
+	
 
 N900:
 	fprintf(stdout, "%5d%16.6e\n", L+1, ERR);
