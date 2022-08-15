@@ -330,8 +330,10 @@ for(ip=0; ip<PEsmpTOT; ip++) {
 /*
 double s1, s2;
 s1 = omp_get_wtime();
+*/
 #pragma omp parallel for private (i, VAL, j)
-	for(i=0; i<N; i++)
+for(ip=0; ip<PEsmpTOT; ip++) {
+	for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++)
 	{
 		VAL = D[i] * W[P][i];
 		for(j=0; j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i]; j++)
@@ -343,9 +345,12 @@ s1 = omp_get_wtime();
 		}
 		W[Q][i] = VAL;
 	}
+}
+/*
 s2 = omp_get_wtime();
 fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
 */
+/*
 #pragma omp parallel for private (ip1, i, VAL, j)
 	for(ip=0; ip<PEsmpTOT; ip++) {
 		for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
@@ -359,6 +364,7 @@ fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
 			W[Q][i] = VAL;
 		}
 	}
+*/
 /*
 #pragma omp parallel for private (ip1, i, VAL, j)
 	for(ip=0; ip<PEsmpTOT; ip++) {
