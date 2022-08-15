@@ -336,7 +336,7 @@ for(ip=0; ip<PEsmpTOT; ip++) {
 	for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++)
 	{
 		VAL = D[i] * W[P][i];
-		for(j=0; j<6; j++)
+		for(j=0; j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i]; j++)
 		{
 
 			VAL += ALU[6*i + j] * W[P][itemLU[6*i+j]];
