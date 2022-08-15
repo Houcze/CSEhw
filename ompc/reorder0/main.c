@@ -47,16 +47,25 @@ int main()
 	{
 		for(int j=0; j<indexLnew[i+1]-indexLnew[i]; j++)
 		{
+
 			ALU[6 * i + j] = ALnew[indexLnew[i]+j];
 			itemLU[6 * i + j] = itemLnew[indexLnew[i]+j] - 1;
-			XX[itemLU[6 * i + j]] = PHI[itemLnew[indexLnew[i]+j]-1];
+			XLU[itemLU[6 * i + j]] = PHI[itemLnew[indexLnew[i]+j]-1];
 
 		}
 		for(int j=indexLnew[i+1]-indexLnew[i];j<indexLnew[i+1]-indexLnew[i]+indexUnew[i+1]-indexUnew[i];j++)
 		{
 			ALU[6 * i + j] = AUnew[indexUnew[i]+j-indexLnew[i+1]+indexLnew[i]];
 			itemLU[6 * i + j] = itemUnew[indexUnew[i]+j-indexLnew[i+1]+indexLnew[i]] - 1;
-			XX[itemLU[6 * i + j]] = PHI[itemUnew[indexUnew[i]+j-indexLnew[i+1]+indexLnew[i]] - 1];		
+			XLU[itemLU[6 * i + j]] = PHI[itemUnew[indexUnew[i]+j-indexLnew[i+1]+indexLnew[i]] - 1];		
+		}
+	}
+
+	for(int i=0; i<1; i++)
+	{
+		for(int j=0; j<6; j++)
+		{
+			printf("ALU[%d][%d] is %lf\n", i, j, ALU[6*i+j]);
 		}
 	}
 
@@ -65,7 +74,7 @@ int main()
 		if(solve_ICCG_mc(ICELTOT	, NL, NU, indexLnew, itemLnew, 
       			indexUnew, itemUnew, D, BFORCE, PHI, ALnew, AUnew, 
 			NCOLORtot, PEsmpTOT, SMPindex_new, EPSICCG, 
-			&ITR, &IER, itemLU, ALU, XX)) goto error;
+			&ITR, &IER, itemLU, ALU, XLU)) goto error;
 	}else if (METHOD == 1){
 		if(solve_ICCG_mc_ft(ICELTOT, NL, NU, indexLnew, itemLnew, 
       			indexUnew, itemUnew, D, BFORCE, PHI, ALnew, AUnew, 

@@ -14,7 +14,7 @@ extern int
 solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *itemU,
 		double *D, double *B, double *X, double *AL, double *AU,
 		int NCOLORtot, int PEsmpTOT, int *SMPindex, 
-		double EPS, int *ITR, int *IER, int *itemLU, double *ALU, double *XX)
+		double EPS, int *ITR, int *IER, int *itemLU, double *ALU, double *XLU)
 {
 	double **W;
 	double VAL, BNRM2, WVAL, SW, RHO, BETA, RHO1, C1, DNRM2, ALPHA, ERR;
@@ -39,7 +39,7 @@ solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *
 			W[3][i] = 0.0;
 		}
 	}
-
+/*
 	for(ic=0; ic<NCOLORtot; ic++) {
 #pragma omp parallel for private (ip1, i, VAL, j)
 		for(ip=0; ip<PEsmpTOT; ip++) {
@@ -54,7 +54,8 @@ solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *
 			}
 		}
 	}
-/*
+*/
+
 	for(ic=0; ic<NCOLORtot; ic++) {
 #pragma omp parallel for private (ip1, i, VAL, j)
 		for(ip=0; ip<PEsmpTOT; ip++) {
@@ -69,17 +70,17 @@ solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *
 			}
 		}
 	}
-*/
+
 /**************************
  * {r0} = {b} - {A}{xini} *
  **************************/
 
 //double *ALU;
 //int *itemLU;
-//double *XX;
+//double *XLU;
 //ALU = (double *)allocate_vector(sizeof(double),N*6);
 //itemLU = (int *)allocate_vector(sizeof(int),N*6);
-//XX = (double *)allocate_vector(sizeof(double),N*6);
+//XLU = (double *)allocate_vector(sizeof(double),N*6);
 /*
 for(int i=0; i<N; i++)
 {
@@ -117,15 +118,15 @@ for(int i=0; i<N; i++)
 {
 	for(int j=0; j<indexL[i+1]-indexL[i]; j++)
 	{
-		XX[itemLU[6 * i + j]] = X[itemL[j]-1];
+		XLU[itemLU[6 * i + j]] = X[itemL[j]-1];
 	}
 	for(int j=indexL[i+1]-indexL[i]; j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i]; j++)
 	{
-		XX[itemLU[6 * i + j]] = X[itemU[j]-1];
+		XLU[itemLU[6 * i + j]] = X[itemU[j]-1];
 	}
 	for (int j=indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i]; j<6; j++)
 	{
-		XX[6 * i + j] = 0.;
+		XLU[6 * i + j] = 0.;
 	}
 }
 */
@@ -137,21 +138,21 @@ for(int i=0; i<N; i++)
 	{
 		ALU[6 * i + j] = AL[jj];
 		itemLU[6 * i + j] = itemL[jj] - 1;
-		XX[itemLU[6 * i + j]] = X[itemL[jj]-1];
+		XLU[itemLU[6 * i + j]] = X[itemL[jj]-1];
 		jj=jj+1;
 	}
 	for(int j=indexL[i+1]-indexL[i]; j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i]; j++)
 	{
 		ALU[6 * i + j] = AU[jj];
 		itemLU[6 * i + j] = itemU[jj] - 1;
-		XX[itemLU[6 * i + j]] = X[itemU[jj]-1];
+		XLU[itemLU[6 * i + j]] = X[itemU[jj]-1];
 		jj=jj+1;
 	}
 	for (int j=indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i]; j<6; j++)
 	{
 		ALU[6 * i + j] = 0.;
 		itemLU[6 * i + j] = 0.;
-		XX[6 * i + j] = 0.;
+		XLU[6 * i + j] = 0.;
 	}
 }
 */
@@ -164,13 +165,13 @@ for(i=0; i<N; i++)
 		{
 			ALU[6 * i + j] = AL[indexL[i]+j];
 			itemLU[6 * i + j] = itemL[indexL[i]+j] - 1;
-			XX[itemLU[6 * i + j]] = X[itemL[indexL[i]+j]-1];
+			XLU[itemLU[6 * i + j]] = X[itemL[indexL[i]+j]-1];
 			
 		}else if (j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i])
 		{
 			ALU[6 * i + j] = AU[indexU[i]+j-indexL[i+1]+indexL[i]];
 			itemLU[6 * i + j] = itemU[indexU[i]+j-indexL[i+1]+indexL[i]] - 1;
-			XX[itemLU[6 * i + j]] = X[itemU[indexU[i]+j-indexL[i+1]+indexL[i]] - 1];
+			XLU[itemLU[6 * i + j]] = X[itemU[indexU[i]+j-indexL[i+1]+indexL[i]] - 1];
 		}
 		
 	}
@@ -193,26 +194,25 @@ for(i=0; i<N; i++)
 	{
 		ALU[6 * i + j] = AL[indexL[i]+j];
 		itemLU[6 * i + j] = itemL[indexL[i]+j] - 1;
-		XX[itemLU[6 * i + j]] = X[itemL[indexL[i]+j]-1];
+		XLU[itemLU[6 * i + j]] = X[itemL[indexL[i]+j]-1];
 		
 	}
 	for(j=indexL[i+1]-indexL[i];j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i];j++)
 	{
 		ALU[6 * i + j] = AU[indexU[i]+j-indexL[i+1]+indexL[i]];
 		itemLU[6 * i + j] = itemU[indexU[i]+j-indexL[i+1]+indexL[i]] - 1;
-		XX[itemLU[6 * i + j]] = X[itemU[indexU[i]+j-indexL[i+1]+indexL[i]] - 1];		
+		XLU[itemLU[6 * i + j]] = X[itemU[indexU[i]+j-indexL[i+1]+indexL[i]] - 1];		
 	}
 }
 */
-double s1, s2;
-s1 = omp_get_wtime();
+
 #pragma omp parallel for private (i, VAL, j)
 /*
 	for(ip=0; ip<PEsmpTOT; ip++) {
 		for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
 			VAL = D[i] * X[i];
 			for(j=0; j<6; j++) {
-				VAL += ALU[6 * i + j] * XX[itemLU[6 * i + j]];
+				VAL += ALU[6 * i + j] * XLU[itemLU[6 * i + j]];
 				//printf("itemL[j] is %d\n", itemL[j]);
 			}
 			//printf("-----------------\n");
@@ -225,15 +225,26 @@ s1 = omp_get_wtime();
 		}
 	}
 	*/
+double s1,s2;
+s1 = omp_get_wtime();
 for(ip=0; ip<PEsmpTOT; ip++) {
 	for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
 		VAL = D[i] * X[i];
-		
-		for(j=0; j<6; j++) {
-			VAL += ALU[6 * i + j] * XX[itemLU[6 * i + j]];
+		/*
+		for(j=0; j<indexL[i+1]-indexL[i]; j++) {
+			VAL += ALU[6 * i + j] * XLU[itemLU[6 * i + j]];
 			//printf("itemL[j] is %d\n", itemL[j]);
 		}
-		
+
+		for(int j=indexL[i+1]-indexL[i];j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i];j++)
+		{
+			VAL += ALU[6 * i + j] * XLU[itemLU[6 * i + j]];
+		}
+		*/
+		for(j=0; j<6; j++)
+		{
+			VAL += ALU[6 * i + j] * XLU[itemLU[6 * i + j]];
+		}
 		//printf("-----------------\n");
 		//for(j=indexU[i]; j<indexU[i+1]; j++) {
 		//	VAL += AU[j] * X[itemU[j]-1];
@@ -244,9 +255,10 @@ for(ip=0; ip<PEsmpTOT; ip++) {
 		
 	}
 }
-	BNRM2 = 0.0;
 s2 = omp_get_wtime();
-fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
+fprintf(stdout, "III This shit takes: %16.6e sec. (solver)\n", s2 - s1);
+
+	BNRM2 = 0.0;
 
 #pragma omp parallel for private (i) reduction (+:BNRM2)
 	for(ip=0; ip<PEsmpTOT; ip++) {
@@ -303,6 +315,38 @@ fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
 			}
 		}
 
+/*
+#pragma omp parallel private (ic, ip, ip1, i, WVAL, j)
+		for(ic=0; ic<NCOLORtot; ic++) {
+#pragma omp for
+			for(ip=0; ip<PEsmpTOT; ip++) {
+				ip1 = ip * NCOLORtot + ic;
+				for(i=SMPindex[ip1]; i<SMPindex[ip1+1]; i++) {
+					WVAL = W[Z][i];
+					for(j=0; j<indexL[i+1]-indexL[i]; j++) {
+						WVAL -= ALU[6*i+j] * W[Z][itemLU[6*i+j]];
+					}
+					W[Z][i] = WVAL * W[DD][i];
+
+				}				
+			}
+		}
+
+#pragma omp parallel private (ic, ip, ip1, i, SW, j)
+		for(ic=0; ic<NCOLORtot; ic++) {
+#pragma omp for
+			for(ip=0; ip<PEsmpTOT; ip++) {
+				ip1 = ip * NCOLORtot + NCOLORtot - 1 - ic;
+				for(i=SMPindex[ip1]; i<SMPindex[ip1+1]; i++) {
+					SW = 0.0;
+					for(j=indexL[i+1]-indexL[i]; j<indexU[i+1]-indexU[i]+indexL[i+1]-indexL[i]; j++) {
+						SW += ALU[6*i+j] * W[Z][itemLU[6*i+j]];
+					}
+					W[Z][i] -= W[DD][i] * SW;
+				}
+			}
+		}
+*/
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -343,30 +387,47 @@ fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
 /****************
  * {q} = [A]{p} *
  ****************/
-/*
+
 double s1, s2;
 s1 = omp_get_wtime();
+
 
 #pragma omp parallel for private (ip, i, VAL, j)
 for(ip=0; ip<PEsmpTOT; ip++) {
 	for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++)
 	{
 		VAL = D[i] * W[P][i];
-		for(j=0; j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i]; j++)
+		/*
+		for(j=0; j<indexL[i+1]-indexL[i]; j++)
 		{
-
-			VAL += ALU[6*i + j] * W[P][itemLU[6*i+j]];
-				//printf("i is %d, j is %d, itemLU is %d\n", i, j, itemLU[6*i+j]);
-			
+			VAL += ALU[6*i+j] * W[P][itemLU[6*i+j]];
+			//printf("i is %d, j is %d, itemLU is %d\n", i, j, itemLU[6*i+j]);
+			//printf("itemLU is %d\n", itemLU[6*i+j]);
 		}
+
+		for(j=indexL[i+1]-indexL[i]; j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i]; j++)
+		{
+			VAL += ALU[6*i+j] * W[P][itemLU[6*i+j]];
+		}
+		*/
+		
+		for(j=0; j<6; j++)
+		{
+			VAL += ALU[6*i+j] * W[P][itemLU[6*i+j]];
+		}
+		
 		W[Q][i] = VAL;
 	}
 }
 
-s2 = omp_get_wtime();
-fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
-*/
 
+
+
+s2 = omp_get_wtime();
+fprintf(stdout, "This shit takes: %16.6e sec. (solver)\n", s2 - s1);
+
+// printf("itemLU[0] is %d\n", itemLU[0]);
+/*
 #pragma omp parallel for private (ip, i, VAL, j)
 	for(ip=0; ip<PEsmpTOT; ip++) {
 		for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {

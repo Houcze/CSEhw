@@ -32,7 +32,7 @@
 
         extern int *INLU, *indexLU;
         extern int NPLU;
-        extern double *XX;
+        extern double *XLU;
         extern double *ALU;
         extern int *itemLU;
 

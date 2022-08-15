@@ -30,7 +30,7 @@
 	// New modified
 
 	double *ALU;
-	double *XX;
+	double *XLU;
 	int *itemLU;
 
 #endif /* __H_PCG */
