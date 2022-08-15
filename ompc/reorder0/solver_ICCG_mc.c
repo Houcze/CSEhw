@@ -204,9 +204,9 @@ for(i=0; i<N; i++)
 	}
 }
 */
-double s1, s2;
-s1 = omp_get_wtime();
-#pragma omp parallel for private (i, VAL, j)
+//double s1, s2;
+//s1 = omp_get_wtime();
+//#pragma omp parallel for private (i, VAL, j)
 /*
 	for(ip=0; ip<PEsmpTOT; ip++) {
 		for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
@@ -245,8 +245,8 @@ for(ip=0; ip<PEsmpTOT; ip++) {
 	}
 }
 	BNRM2 = 0.0;
-s2 = omp_get_wtime();
-fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
+//s2 = omp_get_wtime();
+//fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
 
 #pragma omp parallel for private (i) reduction (+:BNRM2)
 	for(ip=0; ip<PEsmpTOT; ip++) {
