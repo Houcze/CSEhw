@@ -331,7 +331,7 @@ for(ip=0; ip<PEsmpTOT; ip++) {
 double s1, s2;
 s1 = omp_get_wtime();
 */
-#pragma omp parallel for private (i, VAL, j)
+#pragma omp parallel for private (ip1, i, VAL, j)
 for(ip=0; ip<PEsmpTOT; ip++) {
 	for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++)
 	{
