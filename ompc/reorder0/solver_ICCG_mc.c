@@ -6,7 +6,7 @@
 #include <string.h>
 #include <errno.h>
 #include <math.h>
-#include "pcg_ext.h"
+#include <omp.h>
 #include "solver_ICCG_mc.h"
 #include "allocate.h"
 
@@ -14,7 +14,7 @@ extern int
 solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *itemU,
 		double *D, double *B, double *X, double *AL, double *AU,
 		int NCOLORtot, int PEsmpTOT, int *SMPindex, 
-		double EPS, int *ITR, int *IER)
+		double EPS, int *ITR, int *IER, int *itemLU, double *ALU, double *XX)
 {
 	double **W;
 	double VAL, BNRM2, WVAL, SW, RHO, BETA, RHO1, C1, DNRM2, ALPHA, ERR;
@@ -190,6 +190,7 @@ for(i=0; i<N; i++)
 	}
 }
 */
+
 #pragma omp parallel for private (i, VAL, j)
 /*
 	for(ip=0; ip<PEsmpTOT; ip++) {
@@ -227,6 +228,7 @@ for(i=0; i<N; i++)
 		
 	}
 	BNRM2 = 0.0;
+
 
 #pragma omp parallel for private (i) reduction (+:BNRM2)
 	for(ip=0; ip<PEsmpTOT; ip++) {
@@ -323,21 +325,38 @@ for(i=0; i<N; i++)
 /****************
  * {q} = [A]{p} *
  ****************/
+/*
+double s1, s2;
+s1 = omp_get_wtime();
 #pragma omp parallel for private (i, VAL, j)
 	for(i=0; i<N; i++)
 	{
 		VAL = D[i] * W[P][i];
-		for(j=0; j<6; j++)
+		for(j=0; j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i]; j++)
 		{
-			if(j<indexL[i+1]-indexL[i]+indexU[i+1]-indexU[i])
-			{
-				VAL += ALU[6*i + j] * W[P][itemLU[6*i+j]];
+
+			VAL += ALU[6*i + j] * W[P][itemLU[6*i+j]];
 				//printf("i is %d, j is %d, itemLU is %d\n", i, j, itemLU[6*i+j]);
-			}
+			
 		}
 		W[Q][i] = VAL;
 	}
-
+s2 = omp_get_wtime();
+fprintf(stdout, "After: %16.6e sec. (solver)\n", s2 - s1);
+*/
+#pragma omp parallel for private (ip1, i, VAL, j)
+	for(ip=0; ip<PEsmpTOT; ip++) {
+		for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
+			VAL = D[i] * W[P][i];
+			for(j=indexL[i]; j<indexL[i+1]; j++) {
+				VAL += AL[j] * W[P][itemL[j]-1];
+			}
+			for(j=indexU[i]; j<indexU[i+1]; j++) {
+				VAL += AU[j] * W[P][itemU[j]-1];
+			}
+			W[Q][i] = VAL;
+		}
+	}
 /*
 #pragma omp parallel for private (ip1, i, VAL, j)
 	for(ip=0; ip<PEsmpTOT; ip++) {

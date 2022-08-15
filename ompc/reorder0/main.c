@@ -65,7 +65,7 @@ int main()
 		if(solve_ICCG_mc(ICELTOT	, NL, NU, indexLnew, itemLnew, 
       			indexUnew, itemUnew, D, BFORCE, PHI, ALnew, AUnew, 
 			NCOLORtot, PEsmpTOT, SMPindex_new, EPSICCG, 
-			&ITR, &IER)) goto error;
+			&ITR, &IER, itemLU, ALU, XX)) goto error;
 	}else if (METHOD == 1){
 		if(solve_ICCG_mc_ft(ICELTOT, NL, NU, indexLnew, itemLnew, 
       			indexUnew, itemUnew, D, BFORCE, PHI, ALnew, AUnew, 
