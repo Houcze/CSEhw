@@ -107,44 +107,40 @@ BNRM2 = 0.0;
 /*******************
  * {z} = [Minv]{r} *
  *******************/
-
+/// Further optimization
 #pragma omp parallel for private(i)
-		for(ip=0; ip<PEsmpTOT; ip++) {
-			for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
-				W[Z][i] = W[R][i];
-			}
+		for(i=0; i<N; i++) {
+			W[Z][i] = W[R][i];			
 		}
 
 #pragma omp parallel private (ic, ip, ip1, i, WVAL, j)
 		for(ic=0; ic<NCOLORtot; ic++) {
 #pragma omp for
-			for(ip=0; ip<PEsmpTOT; ip++) {
-				ip1 = ip * NCOLORtot + ic;
-				for(i=SMPindex[ip1]; i<SMPindex[ip1+1]; i++) {
-					WVAL = W[Z][i];
-					for(j=indexL[i]; j<indexL[i+1]; j++) {
-						WVAL -= AL[j] * W[Z][itemL[j]-1];
-					}
-					W[Z][i] = WVAL * W[DD][i];
+			for(i=0; i<N; i++) {
+				WVAL = W[Z][i];
+				for(j=indexL[i]; j<indexL[i+1]; j++) {
+					WVAL -= AL[j] * W[Z][itemL[j]-1];
+				}
+				W[Z][i] = WVAL * W[DD][i];
 
 
-				}				
+								
 			}
 		}
 
 #pragma omp parallel private (ic, ip, ip1, i, SW, j)
 		for(ic=0; ic<NCOLORtot; ic++) {
 #pragma omp for
-			for(ip=0; ip<PEsmpTOT; ip++) {
-				ip1 = ip * NCOLORtot + NCOLORtot - 1 - ic;
-				for(i=SMPindex[ip1]; i<SMPindex[ip1+1]; i++) {
-					SW = 0.0;
-					for(j=indexU[i]; j<indexU[i+1]; j++) {
-						SW += AU[j] * W[Z][itemU[j]-1];
-					}
-					W[Z][i] -= W[DD][i] * SW;
+			
+			ip1 = ip * NCOLORtot + NCOLORtot - 1 - ic;
+			for(i=SMPindex[ip1]; i<SMPindex[ip1+1]; i++) {
+				SW = 0.0;
+				for(j=indexU[i]; j<indexU[i+1]; j++) {
+					SW += AU[j] * W[Z][itemU[j]-1];
 				}
+				W[Z][i] -= W[DD][i] * SW;
 			}
+			
 		}
 
 
@@ -155,12 +151,11 @@ BNRM2 = 0.0;
 /****************
  * RHO = {r}{z} *
  ****************/
+// Further Optimization
 		RHO = 0.0;
-#pragma omp parallel for private (ip, i) reduction (+:RHO)
-		for(ip=0; ip<PEsmpTOT; ip++) {
-			for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
-				RHO += W[R][i] * W[Z][i];
-			}
+#pragma omp parallel for reduction (+:RHO)
+		for(i=0; i<N; i++) {
+			RHO += W[R][i] * W[Z][i];			
 		}
 
 
@@ -172,19 +167,16 @@ BNRM2 = 0.0;
  ********************************/
 
 		if(L == 0) {
-#pragma omp parallel for private (ip, i)
-			for(ip=0; ip<PEsmpTOT; ip++) {
-				for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
-					W[P][i] = W[Z][i];
-				}
+#pragma omp parallel for
+			for(i=0; i<N; i++) { 
+				W[P][i] = W[Z][i];
+				
 			}
 		} else {
 			BETA = RHO / RHO1;
-#pragma omp parallel for private (ip, i)
-			for(ip=0; ip<PEsmpTOT; ip++) {
-				for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
-					W[P][i] = W[Z][i] + BETA * W[P][i];
-				}
+#pragma omp parallel for 
+			for(i=0; i<N; ip++) {
+				W[P][i] = W[Z][i] + BETA * W[P][i];
 			}
 		}
 
@@ -211,10 +203,9 @@ BNRM2 = 0.0;
 */
 ///////////////////////////////////////////////////////////////////////////
 
-//double s1, s2;
-//s1 = omp_get_wtime();
 
-#pragma omp parallel for private (ip, i, VAL, j)
+// ELL APPLY FAILED
+#pragma omp parallel for 
 	for(i=0; i<N; i++) {
 			VAL = D[i] * W[P][i];
 			for(j=indexL[i]; j<indexL[i+1]; j++) {
@@ -232,7 +223,7 @@ BNRM2 = 0.0;
  ************************/
 
 		C1 = 0.0;
-#pragma omp parallel for private (i) reduction (+:C1)
+#pragma omp parallel for reduction (+:C1)
 		for(i=0; i<N; i++) {
 			C1 += W[P][i] * W[Q][i];
 		}
