@@ -214,7 +214,7 @@ BNRM2 = 0.0;
 //double s1, s2;
 //s1 = omp_get_wtime();
 
-#pragma omp parallel for private (i, VAL, j)
+#pragma omp parallel for
 	for(i=0; i<N; i++) {
 			VAL = D[i] * W[P][i];
 			for(j=indexL[i]; j<indexL[i+1]; j++) {
