@@ -156,10 +156,11 @@ BNRM2 = 0.0;
  * RHO = {r}{z} *
  ****************/
 		RHO = 0.0;
-#pragma omp parallel for reduction (+:RHO)
-		
-		for(i=0; i<N; i++) {
-			RHO += W[R][i] * W[Z][i];
+#pragma omp parallel for private (ip, i) reduction (+:RHO)
+		for(ip=0; ip<PEsmpTOT; ip++) {
+			for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
+				RHO += W[R][i] * W[Z][i];
+			}
 		}
 
 
@@ -171,16 +172,19 @@ BNRM2 = 0.0;
  ********************************/
 
 		if(L == 0) {
-#pragma omp parallel for 
-			for(i=0; i<N; i++) {
-				W[P][i] = W[Z][i];
+#pragma omp parallel for private (ip, i)
+			for(ip=0; ip<PEsmpTOT; ip++) {
+				for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
+					W[P][i] = W[Z][i];
+				}
 			}
 		} else {
 			BETA = RHO / RHO1;
-#pragma omp parallel for 
-			for(i=0; i<N; i++) {
-				W[P][i] = W[Z][i] + BETA * W[P][i];
-				
+#pragma omp parallel for private (ip, i)
+			for(ip=0; ip<PEsmpTOT; ip++) {
+				for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
+					W[P][i] = W[Z][i] + BETA * W[P][i];
+				}
 			}
 		}
 
@@ -209,7 +213,7 @@ BNRM2 = 0.0;
 
 //double s1, s2;
 //s1 = omp_get_wtime();
-// If you remove this private, the speed will be very slow.
+
 #pragma omp parallel for private (i, VAL, j)
 	for(i=0; i<N; i++) {
 			VAL = D[i] * W[P][i];
@@ -229,7 +233,7 @@ BNRM2 = 0.0;
  ************************/
 
 		C1 = 0.0;
-#pragma omp parallel for reduction (+:C1)
+#pragma omp parallel for private(i) reduction (+:C1)
 		for(i=0; i<N; i++) {
 			C1 += W[P][i] * W[Q][i];
 		}
@@ -243,7 +247,7 @@ BNRM2 = 0.0;
  ***************************/
 
 // Reduced OMP
-#pragma omp for
+#pragma omp for private (i)
 		for(i=0; i<N; i++) {
 				X[i]    += ALPHA * W[P][i];
 				W[R][i] -= ALPHA * W[Q][i];
