@@ -247,7 +247,7 @@ BNRM2 = 0.0;
  ***************************/
 
 // Reduced OMP
-#pragma omp for private (i)
+#pragma omp for
 		for(i=0; i<N; i++) {
 				X[i]    += ALPHA * W[P][i];
 				W[R][i] -= ALPHA * W[Q][i];
