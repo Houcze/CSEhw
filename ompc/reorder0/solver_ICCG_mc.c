@@ -130,9 +130,8 @@ BNRM2 = 0.0;
 
 #pragma omp parallel private (ic, ip, ip1, i, SW, j)
 		for(ic=0; ic<NCOLORtot; ic++) {
-#pragma omp for
-			
 			ip1 = ip * NCOLORtot + NCOLORtot - 1 - ic;
+#pragma omp for		
 			for(i=SMPindex[ip1]; i<SMPindex[ip1+1]; i++) {
 				SW = 0.0;
 				for(j=indexU[i]; j<indexU[i+1]; j++) {
@@ -175,7 +174,7 @@ BNRM2 = 0.0;
 		} else {
 			BETA = RHO / RHO1;
 #pragma omp parallel for 
-			for(i=0; i<N; ip++) {
+			for(i=0; i<N; i++) {
 				W[P][i] = W[Z][i] + BETA * W[P][i];
 			}
 		}
