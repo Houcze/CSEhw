@@ -233,7 +233,7 @@ BNRM2 = 0.0;
  ************************/
 
 		C1 = 0.0;
-#pragma omp parallel for private(i) reduction (+:C1)
+#pragma omp parallel for reduction (+:C1)
 		for(i=0; i<N; i++) {
 			C1 += W[P][i] * W[Q][i];
 		}
