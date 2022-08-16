@@ -172,19 +172,16 @@ BNRM2 = 0.0;
  ********************************/
 
 		if(L == 0) {
-#pragma omp parallel for private (ip, i)
-			for(ip=0; ip<PEsmpTOT; ip++) {
-				for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
-					W[P][i] = W[Z][i];
-				}
+#pragma omp parallel for 
+			for(i=0; i<N; i++) {
+				W[P][i] = W[Z][i];
 			}
 		} else {
 			BETA = RHO / RHO1;
-#pragma omp parallel for private (ip, i)
-			for(ip=0; ip<PEsmpTOT; ip++) {
-				for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
-					W[P][i] = W[Z][i] + BETA * W[P][i];
-				}
+#pragma omp parallel for 
+			for(i=0; i<N; i++) {
+				W[P][i] = W[Z][i] + BETA * W[P][i];
+				
 			}
 		}
 
@@ -213,8 +210,8 @@ BNRM2 = 0.0;
 
 //double s1, s2;
 //s1 = omp_get_wtime();
-
-#pragma omp parallel for
+// If you remove this private, the speed will be very slow.
+#pragma omp parallel for private (i, VAL, j)
 	for(i=0; i<N; i++) {
 			VAL = D[i] * W[P][i];
 			for(j=indexL[i]; j<indexL[i+1]; j++) {
