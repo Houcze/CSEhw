@@ -61,7 +61,7 @@ solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *
  * {r0} = {b} - {A}{xini} *
  **************************/
 
-/*
+
 #pragma omp parallel for private (i, VAL, j)
 	for(ip=0; ip<PEsmpTOT; ip++) {
 		for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
@@ -76,9 +76,9 @@ solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *
 			W[R][i] = B[i] - VAL;
 		}
 	}
-*/
 
 
+/*
 #pragma omp parallel for private (i,VAL,j)	
 	for(ip=0; ip<PEsmpTOT; ip++) {  
 		for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
@@ -89,7 +89,7 @@ solve_ICCG_mc(int N, int NL, int NU, int *indexL, int *itemL, int *indexU, int *
 			W[R][i] = B[i] - VAL;
 		}
 	}
-
+*/
 BNRM2 = 0.0;
 #pragma omp parallel for private (i) reduction (+:BNRM2)
 	for(ip=0; ip<PEsmpTOT; ip++) {
