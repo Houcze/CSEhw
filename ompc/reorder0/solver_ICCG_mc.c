@@ -156,11 +156,10 @@ BNRM2 = 0.0;
  * RHO = {r}{z} *
  ****************/
 		RHO = 0.0;
-#pragma omp parallel for private (ip, i) reduction (+:RHO)
-		for(ip=0; ip<PEsmpTOT; ip++) {
-			for(i=SMPindex[ip*NCOLORtot]; i<SMPindex[(ip+1)*NCOLORtot]; i++) {
-				RHO += W[R][i] * W[Z][i];
-			}
+#pragma omp parallel for reduction (+:RHO)
+		
+		for(i=0; i<N; i++) {
+			RHO += W[R][i] * W[Z][i];
 		}
 
 
