@@ -237,7 +237,7 @@ BNRM2 = 0.0;
  ***************************/
 
 // Reduced OMP
-#pragma omp parallel for private (i)	
+#pragma omp parallel for
 		for(i=0; i<N; i++) {
 				X[i]    += ALPHA * W[P][i];
 				W[R][i] -= ALPHA * W[Q][i];
@@ -246,7 +246,7 @@ BNRM2 = 0.0;
 		
 // Reduced OMP
 		DNRM2 = 0.0;
-#pragma omp parallel for private (ip, i) reduction (+:DNRM2)
+#pragma omp parallel for reduction (+:DNRM2)
 		for(i=0; i<N; i++) {
 			  DNRM2 += W[R][i]*W[R][i];
 		}
