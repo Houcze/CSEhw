@@ -53,7 +53,7 @@ POI_GEN(void)
 		itemLU = (int *)allocate_vector(sizeof(int),ICELTOT*6);
 		XLU = (double *)allocate_vector(sizeof(double),ICELTOT*6);
 		ALU = (double *)allocate_vector(sizeof(double),ICELTOT*6);
-		memset(itemLU, 0, sizeof(int) * ICELTOT*6);
+		memset(itemLU, -1, sizeof(int) * ICELTOT*6);
 		memset(XLU, 0, sizeof(double) * ICELTOT*6);
 		memset(ALU, 0, sizeof(double) * ICELTOT*6);
 

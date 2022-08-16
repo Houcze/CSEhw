@@ -34,6 +34,7 @@ int main()
 /***************
  * MAIN SOLVER *
  ***************/
+// itemLU and XLU should not be like this.
 	memset(PHI, 0.0, sizeof(double)*ICELTOT);
 	ISET = 0;
 
@@ -42,32 +43,31 @@ int main()
 		fprintf(stderr, "Error: %s\n", strerror(errno));
 		goto error;
 	}
-
+	int u=0;
 	for(int i=0; i<ICELTOT; i++)
 	{
 		for(int j=0; j<indexLnew[i+1]-indexLnew[i]; j++)
 		{
-
+			//printf("Lj is %d\n", j);
 			ALU[6 * i + j] = ALnew[indexLnew[i]+j];
 			itemLU[6 * i + j] = itemLnew[indexLnew[i]+j] - 1;
 			XLU[itemLU[6 * i + j]] = PHI[itemLnew[indexLnew[i]+j]-1];
+			u=u+1;
 
 		}
+		//printf("---------------\n");
 		for(int j=indexLnew[i+1]-indexLnew[i];j<indexLnew[i+1]-indexLnew[i]+indexUnew[i+1]-indexUnew[i];j++)
 		{
+			//printf("Uj is %d\n", j);
 			ALU[6 * i + j] = AUnew[indexUnew[i]+j-indexLnew[i+1]+indexLnew[i]];
 			itemLU[6 * i + j] = itemUnew[indexUnew[i]+j-indexLnew[i+1]+indexLnew[i]] - 1;
 			XLU[itemLU[6 * i + j]] = PHI[itemUnew[indexUnew[i]+j-indexLnew[i+1]+indexLnew[i]] - 1];		
+			u=u+1;
 		}
 	}
+	printf("u is %d\n", u);
 
-	for(int i=0; i<1; i++)
-	{
-		for(int j=0; j<6; j++)
-		{
-			printf("ALU[%d][%d] is %lf\n", i, j, ALU[6*i+j]);
-		}
-	}
+
 
 	Stime = omp_get_wtime();
 	if(METHOD == 0 ){
