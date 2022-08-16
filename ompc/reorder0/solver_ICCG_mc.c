@@ -214,7 +214,7 @@ BNRM2 = 0.0;
 //double s1, s2;
 //s1 = omp_get_wtime();
 
-#pragma omp parallel for
+#pragma omp parallel for private (i, VAL, j)
 	for(i=0; i<N; i++) {
 			VAL = D[i] * W[P][i];
 			for(j=indexL[i]; j<indexL[i+1]; j++) {
@@ -233,7 +233,7 @@ BNRM2 = 0.0;
  ************************/
 
 		C1 = 0.0;
-#pragma omp parallel for reduction (+:C1)
+#pragma omp parallel for private(i) reduction (+:C1)
 		for(i=0; i<N; i++) {
 			C1 += W[P][i] * W[Q][i];
 		}
@@ -247,7 +247,7 @@ BNRM2 = 0.0;
  ***************************/
 
 // Reduced OMP
-#pragma omp for
+#pragma omp for private (i)
 		for(i=0; i<N; i++) {
 				X[i]    += ALPHA * W[P][i];
 				W[R][i] -= ALPHA * W[Q][i];
@@ -256,7 +256,7 @@ BNRM2 = 0.0;
 		
 // Reduced OMP
 		DNRM2 = 0.0;
-#pragma omp parallel for reduction (+:DNRM2)
+#pragma omp parallel for private(i) reduction (+:DNRM2)
 		for(i=0; i<N; i++) {
 			  DNRM2 += W[R][i]*W[R][i];
 		}
