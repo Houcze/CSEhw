@@ -256,7 +256,7 @@ BNRM2 = 0.0;
 		
 // Reduced OMP
 		DNRM2 = 0.0;
-#pragma omp parallel for private(i) reduction (+:DNRM2)
+#pragma omp parallel for reduction (+:DNRM2)
 		for(i=0; i<N; i++) {
 			  DNRM2 += W[R][i]*W[R][i];
 		}
