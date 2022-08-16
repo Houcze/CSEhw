@@ -32,6 +32,7 @@ POI_GEN(void)
 	NL = 6;
 	NU = 6;
 
+	NLU=6;
         BFORCE = (double *)allocate_vector(sizeof(double),ICELTOT);
         D      = (double *)allocate_vector(sizeof(double),ICELTOT);
         PHI    = (double *)allocate_vector(sizeof(double),ICELTOT);
@@ -50,12 +51,14 @@ POI_GEN(void)
         indexLnew_org = (int *)allocate_vector(sizeof(int),ICELTOT+1);
         indexUnew_org = (int *)allocate_vector(sizeof(int),ICELTOT+1);
 
-		itemLU = (int *)allocate_vector(sizeof(int),ICELTOT*6);
-		XLU = (double *)allocate_vector(sizeof(double),ICELTOT*6);
-		ALU = (double *)allocate_vector(sizeof(double),ICELTOT*6);
-		memset(itemLU, -1, sizeof(int) * ICELTOT*6);
-		memset(XLU, 0, sizeof(double) * ICELTOT*6);
-		memset(ALU, 0, sizeof(double) * ICELTOT*6);
+		indexLU = (int *)allocate_vector(sizeof(int), ICELTOT*2);
+	BFORCE = (double *)allocate_vector(sizeof(double),ICELTOT);
+	D      = (double *)allocate_vector(sizeof(double),ICELTOT);
+	//PHI    = (double *)allocate_vector(sizeof(double),ICELTOT+N2);
+        INLU = (int *)allocate_vector(sizeof(int),ICELTOT);
+
+        itemLU = (int *)allocate_vector(sizeof(int),ICELTOT*6);
+	AMAT   = (double *)allocate_vector(sizeof(double),ICELTOT*6);	
 
 	for(j=0; j<ICELTOT; j++) {
 		INL[j] = 0;
@@ -73,6 +76,21 @@ POI_GEN(void)
 		indexU[i]=0;
 		indexLnew_org[i]=0;
 		indexUnew_org[i]=0;
+	}
+#pragma omp parallel for private (i)
+        for (i = 0; i <ICELTOT ; i++) {
+		BFORCE[i]=0.0;
+		D[i]  =0.0;
+		PHI[i]=0.0;
+        	INLU[i] = 0;
+        }
+
+#pragma omp parallel for private (i,k)
+        for (i = 0; i <ICELTOT ; i++) {
+	  for (k = 0; k <6 ; k++) {
+	    AMAT  [6*i+k]=0.0;
+	    itemLU[6*i+k]=-1;	    
+	  }
 	}
 
 
@@ -92,39 +110,121 @@ POI_GEN(void)
 			icou = INL[icel] + 1;
 			IAL[icel][icou-1] = icN5;
 			INL[icel]         = icou;
+			INLU[icel]= INLU[icel] + 1;
 		}
 
 		if(icN3 != 0) {
 			icou = INL[icel] + 1;
 			IAL[icel][icou-1] = icN3;
 			INL[icel]         = icou;
+			INLU[icel]= INLU[icel] + 1;
 		}
 
 		if(icN1 != 0) {
 			icou = INL[icel] + 1;
 			IAL[icel][icou-1] = icN1;
 			INL[icel]         = icou;
+			INLU[icel]= INLU[icel] + 1;
 		}
 
 		if(icN2 != 0) {
 			icou = INU[icel] + 1;
 			IAU[icel][icou-1] = icN2;
 			INU[icel]         = icou;
+			INLU[icel]= INLU[icel] + 1;
 		}
 
 		if(icN4 != 0) {
 			icou = INU[icel] + 1;
 			IAU[icel][icou-1] = icN4;
 			INU[icel]         = icou;
+			INLU[icel]= INLU[icel] + 1;
 		}
 
 		if(icN6 != 0) {
 			icou = INU[icel] + 1;
 			IAU[icel][icou-1] = icN6;
 			INU[icel]         = icou;
+			INLU[icel]= INLU[icel] + 1;
 		}
 	}
 
+#pragma omp parallel for private (icel,icN1,icN2,icN3,icN4,icN5,icN6,VOL0,icou,coef, ii, jj, kk)
+	for(icel=0; icel<ICELTOT; icel++) {
+			icN1 = NEIBcell[icel][0];
+			icN2 = NEIBcell[icel][1];
+			icN3 = NEIBcell[icel][2];
+			icN4 = NEIBcell[icel][3];
+			icN5 = NEIBcell[icel][4];
+			icN6 = NEIBcell[icel][5];
+
+	                VOL0 = VOLCEL[icel];
+
+                        icou= 0;
+			if(icN5 != 0) {
+				coef = RDZ * ZAREA;
+				D[icel] -= coef;
+				itemLU[6*icel+icou]= icN5-1;
+				AMAT  [6*icel+icou]= coef;
+				icou= icou + 1;
+			}
+
+			if(icN3 != 0) {
+				coef = RDZ * YAREA;
+				D[icel] -= coef;
+				itemLU[6*icel+icou]= icN3-1;
+				AMAT  [6*icel+icou]= coef;
+				icou= icou + 1;
+			}
+
+			if(icN1 != 0) {
+				coef = RDZ * XAREA;
+				D[icel] -= coef;
+				itemLU[6*icel+icou]= icN1-1;
+				AMAT  [6*icel+icou]= coef;
+				icou= icou + 1;
+			}
+
+			if(icN2 != 0) {
+				coef = RDZ * XAREA;
+				D[icel] -= coef;
+				itemLU[6*icel+icou]= icN2-1;
+				AMAT  [6*icel+icou]= coef;
+				icou= icou + 1;
+			}
+
+			if(icN4 != 0) {
+				coef = RDZ * YAREA;
+				D[icel] -= coef;
+				itemLU[6*icel+icou]= icN4-1;
+				AMAT  [6*icel+icou]= coef;
+				icou= icou + 1;
+			}
+
+			if(icN6 != 0) {
+			        coef = RDZ * ZAREA;
+				D[icel] -= coef;
+				itemLU[6*icel+icou]= icN6-1;
+				AMAT  [6*icel+icou]= coef;
+				icou= icou + 1;
+			}
+
+			ii = XYZ[icel][0];
+			jj = XYZ[icel][1];
+			kk = XYZ[icel][2];
+
+			BFORCE[icel] = - (double)(ii + jj + kk) * VOLCEL[icel];
+		}
+/*
+for(int i=0; i<ICELTOT; i++)
+{
+	for(int j=0; j<6; j++)
+	{
+		printf("AMAT[%d,%d] is %f\n", i, j, AMAT[6*i+j]);
+	}
+	printf("-------------\n");
+}
+*/
 /*****************
  * MULTICOLORING *
  *****************/
@@ -595,7 +695,19 @@ N111:
 
 	E1t = omp_get_wtime();
 	fprintf(stdout, "%16.6e sec. (assemble)\n", E1t - S1t);
-
+/***********
+ * PADDING *
+ ***********/
+        icou= 0;
+        for (i = 0; i <ICELTOT ; i++) {
+	  for (k = 0; k <6 ; k++) {
+	    if (itemLU[6*i+k]==-1) {
+		icou= icou + 1;
+		itemLU[6*i+k]= ICELTOT-1 + icou;
+		if (icou==128){icou=0;}
+	    }
+	  }
+	}
 /****************************
  * DIRICHLET BOUNDARY CELLs *
  ****************************/
@@ -608,6 +720,10 @@ N111:
 	}
 
 
-
+	for(int i=0; i<ICELTOT; i++)
+	{
+		indexLU[2*i] = indexLnew[i+1]-indexLnew[i];
+		indexLU[2*i+1]=indexUnew[i+1]-indexUnew[i];
+	}	
 	return 0;
 }

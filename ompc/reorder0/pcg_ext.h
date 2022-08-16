@@ -2,7 +2,7 @@
 #define __H_PCG
 
 	extern int N2;
-	extern int NUmax, NLmax, NCOLORtot, NCOLORk, NU, NL;
+	extern int NUmax, NLmax, NCOLORtot, NCOLORk, NU, NL, NLU;
 	extern int METHOD, ORDER_METHOD, NFLAG;
 	extern int NPL, NPU, NPL2, NPU2;
 
@@ -28,12 +28,9 @@
         extern int *itemLnew, *itemUnew;
         extern int *OLDtoNEWnew, *NEWtoOLDnew;
         // New modified
-  
-
-        extern int *INLU, *indexLU;
+        extern double *AMAT;        
+        extern int *INLU, *indexLU, *itemLU;
         extern int NPLU;
-        extern double *XLU;
-        extern double *ALU;
-        extern int *itemLU;
+        extern int *indexLU;
 
 #endif /* __H_PCG */

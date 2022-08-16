@@ -2,7 +2,7 @@
 #define __H_PCG
 
 	static int N2 = 256;
-	int NUmax, NLmax, NCOLORtot, NCOLORk, NU, NL;
+	int NUmax, NLmax, NCOLORtot, NCOLORk, NU, NL, NLU;
 	int METHOD, ORDER_METHOD, NFLAG;
 	int NPL, NPU, NPL2, NPU2;
 
@@ -29,8 +29,9 @@
 	int *OLDtoNEWnew, *NEWtoOLDnew;
 	// New modified
 
-	double *ALU;
-	double *XLU;
-	int *itemLU;
+	double *AMAT;
+	int *INLU, *indexLU, *itemLU;
+	int NPLU;
+	int *indexLU;
 
 #endif /* __H_PCG */
